@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import './globals.css';
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
+
 
 interface DashboardStats {
   total_skus: number;
@@ -43,9 +42,9 @@ export default function Home() {
   const fetchDashboardData = async () => {
     try {
       const [statsRes, lowStockRes, deadRes] = await Promise.all([
-        fetch('${BASE_URL}/api/dashboard/stats'),
-        fetch('${BASE_URL}/api/alerts/low-stock'),
-        fetch('${BASE_URL}/api/alerts/dead-inventory')
+        fetch('/api/dashboard/stats'),
+        fetch('/api/alerts/low-stock'),
+        fetch('/api/alerts/dead-inventory')
       ]);
 
       const statsData = await statsRes.json();
