@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import '../globals.css';
+const API_BASE_URL = "https://insyd-backend-oydv.onrender.com";
 
 
 interface TopSeller {
@@ -24,7 +25,7 @@ export default function AnalyticsPage() {
 
   const fetchTopSellers = async () => {
     try {
-      const response = await fetch('/api/analytics/top-sellers?limit=20');
+      const response = await fetch('${API_BASE_URL}/api/analytics/top-sellers?limit=20');
       const data = await response.json();
       setTopSellers(data);
     } catch (error) {

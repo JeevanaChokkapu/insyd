@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import '../globals.css';
+const API_BASE_URL = "https://insyd-backend-oydv.onrender.com";
 
 interface SKU {
   id: string;
@@ -31,7 +32,7 @@ export default function InventoryPage() {
 
   const fetchSKUs = async () => {
     try {
-      const response = await fetch('/api/skus');
+      const response = await fetch('${API_BASE_URL}/api/skus');
       const data = await response.json();
       setSkus(data);
     } catch (error) {
@@ -47,7 +48,7 @@ export default function InventoryPage() {
     }
 
     try {
-      const response = await fetch(`/api/skus/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/skus/${id}`, {
         method: 'DELETE',
       });
 
