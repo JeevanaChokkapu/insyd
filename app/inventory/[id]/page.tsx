@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
+
 
 interface SKU {
   id: string;
@@ -45,7 +48,7 @@ export default function SKUDetailPage() {
 
   const fetchSKU = async (id: string) => {
     try {
-      const response = await fetch(`/api/skus/${id}`);
+      const response = await fetch(`${BASE_URL}/api/skus/${id}`);
       if (response.ok) {
         const data = await response.json();
         setSku(data);
@@ -69,7 +72,7 @@ export default function SKUDetailPage() {
     }
 
     try {
-      const response = await fetch(`/api/skus/${params.id}/adjust`, {
+      const response = await fetch(`${BASE_URL}/api/skus/${params.id}/adjust`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -106,7 +109,7 @@ export default function SKUDetailPage() {
     }
 
     try {
-      const response = await fetch(`/api/skus/${params.id}/sell`, {
+      const response = await fetch(`${BASE_URL}/api/skus/${params.id}/sell`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -148,7 +151,7 @@ export default function SKUDetailPage() {
     }
 
     try {
-      const response = await fetch(`/api/skus/${params.id}/damage`, {
+      const response = await fetch(`${BASE_URL}/api/skus/${params.id}/damage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

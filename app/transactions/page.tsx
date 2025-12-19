@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import '../globals.css';
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
+
 
 interface Transaction {
   id: string;
@@ -25,7 +28,7 @@ export default function TransactionsPage() {
 
   const fetchTransactions = async () => {
     try {
-      const response = await fetch('/api/transactions?limit=100');
+      const response = await fetch('${BASE_URL}/api/transactions?limit=100');
       const data = await response.json();
       setTransactions(data);
     } catch (error) {
