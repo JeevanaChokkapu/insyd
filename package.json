@@ -4,8 +4,8 @@
   "description": "Inventory management system for AEC material businesses",
   "scripts": {
     "dev": "next dev",
-    "build": "npm install && npm run build",
-    "start": "cd server && npm start",
+    "build": "next build",
+    "start": "next start",
     "server": "node server/index.js",
     "dev:server": "nodemon server/index.js"
   },
