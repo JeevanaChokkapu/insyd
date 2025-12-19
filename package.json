@@ -2,13 +2,13 @@
   "name": "insyd-inventory",
   "version": "1.0.0",
   "description": "Inventory management system for AEC material businesses",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "server": "node server/index.js",
-    "dev:server": "nodemon server/index.js"
-  },
+"scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "server": "node server/index.js",
+  "dev:server": "nodemon server/index.js"
+},
   "dependencies": {
     "next": "^14.0.0",
     "react": "^18.2.0",
