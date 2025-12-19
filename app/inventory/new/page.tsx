@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import '../../globals.css';
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
+
 
 export default function NewSKUPage() {
   const router = useRouter();
@@ -38,7 +41,7 @@ export default function NewSKUPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/skus', {
+      const response = await fetch('${BASE_URL}/api/skus', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

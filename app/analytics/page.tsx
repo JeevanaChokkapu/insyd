@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import '../globals.css';
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
+
 
 interface TopSeller {
   id: string;
@@ -23,7 +26,7 @@ export default function AnalyticsPage() {
 
   const fetchTopSellers = async () => {
     try {
-      const response = await fetch('/api/analytics/top-sellers?limit=20');
+      const response = await fetch('${BASE_URL}/api/analytics/top-sellers?limit=20');
       const data = await response.json();
       setTopSellers(data);
     } catch (error) {

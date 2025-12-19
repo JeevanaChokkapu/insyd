@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
 
 interface SKU {
@@ -36,7 +38,7 @@ export default function EditSKUPage() {
 
   const fetchSKU = async (id: string) => {
     try {
-      const response = await fetch(`/api/skus/${id}`);
+      const response = await fetch(`${BASE_URL}/api/skus/${id}`);
       if (response.ok) {
         const data = await response.json();
         setFormData(data);
@@ -69,7 +71,7 @@ export default function EditSKUPage() {
 
     setSaving(true);
     try {
-      const response = await fetch(`/api/skus/${formData.id}`, {
+      const response = await fetch(`${BASE_URL}/api/skus/${formData.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

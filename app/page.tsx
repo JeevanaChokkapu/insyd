@@ -43,9 +43,9 @@ export default function Home() {
   const fetchDashboardData = async () => {
     try {
       const [statsRes, lowStockRes, deadRes] = await Promise.all([
-        fetch('/api/dashboard/stats'),
-        fetch('/api/alerts/low-stock'),
-        fetch('/api/alerts/dead-inventory')
+        fetch('${BASE_URL}/api/dashboard/stats'),
+        fetch('${BASE_URL}/api/alerts/low-stock'),
+        fetch('${BASE_URL}/api/alerts/dead-inventory')
       ]);
 
       const statsData = await statsRes.json();
