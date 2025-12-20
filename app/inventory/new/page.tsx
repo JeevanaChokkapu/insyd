@@ -39,8 +39,12 @@ export default function NewSKUPage() {
     e.preventDefault();
     setLoading(true);
 
+    const apiUrl = `${API_BASE_URL}/api/skus`;
+    console.log('Creating SKU at:', apiUrl);
+    console.log('Form data:', formData);
+
     try {
-      const response = await fetch(`${API_BASE_URL}/api/skus`, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,12 +58,21 @@ export default function NewSKUPage() {
           router.push('/inventory');
         }, 1000);
       } else {
-        const error = await response.json();
-        showToast(error.error || 'Error creating SKU', 'error');
+        let errorMessage = 'Error creating SKU';
+        try {
+          const error = await response.json();
+          errorMessage = error.error || error.message || errorMessage;
+          console.error('API Error:', error);
+        } catch (e) {
+          errorMessage = `Server error: ${response.status} ${response.statusText}`;
+          console.error('Response error:', response.status, response.statusText);
+        }
+        showToast(errorMessage, 'error');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating SKU:', error);
-      showToast('Error creating SKU. Please try again.', 'error');
+      const errorMessage = error.message || 'Network error. Please check your connection and try again.';
+      showToast(`Error: ${errorMessage}`, 'error');
     } finally {
       setLoading(false);
     }
