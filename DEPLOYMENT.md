@@ -1,145 +1,182 @@
 # Deployment Guide
 
-This guide covers deploying the Insyd Inventory Management System to production.
+This guide will help you deploy the Insyd Inventory Management System to production.
+
+## Architecture
+
+The application consists of two parts:
+1. **Frontend**: Next.js application (deploy to Vercel)
+2. **Backend**: Express.js API server (deploy to Railway/Render/Fly.io)
 
 ## Prerequisites
 
 - GitHub account
 - Vercel account (for frontend)
-- Railway or Render account (for backend)
+- Railway/Render account (for backend)
+- Node.js 18+ installed locally
 
-## Frontend Deployment (Vercel)
+## Step 1: Deploy Backend
 
-1. **Push code to GitHub**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin <your-github-repo-url>
-   git push -u origin main
-   ```
+### Option A: Railway (Recommended)
 
-2. **Deploy on Vercel**
-   - Go to [vercel.com](https://vercel.com)
-   - Click "New Project"
-   - Import your GitHub repository
-   - Framework Preset: Next.js
-   - Build Command: `npm run build`
-   - Output Directory: `.next`
-   - Install Command: `npm install`
-   - Click "Deploy"
+1. Go to [railway.app](https://railway.app) and sign in
+2. Click "New Project" → "Deploy from GitHub repo"
+3. Select your repository
+4. Railway will auto-detect Node.js
+5. Set the following:
+   - **Start Command**: `node server/index.js`
+   - **Root Directory**: `/` (root)
+6. Add environment variable:
+   - `PORT` = `3001` (or leave default)
+   - `NODE_ENV` = `production`
+7. Click "Deploy"
+8. Once deployed, copy your Railway URL (e.g., `https://your-app.railway.app`)
 
-3. **Update API Configuration**
-   - After deployment, update `next.config.js` to point to your backend URL
-   - Or use environment variables for API URL
+### Option B: Render
 
-## Backend Deployment (Railway)
+1. Go to [render.com](https://render.com) and sign in
+2. Click "New" → "Web Service"
+3. Connect your GitHub repository
+4. Configure:
+   - **Name**: `insyd-backend`
+   - **Environment**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `node server/index.js`
+   - **Root Directory**: `/`
+5. Add environment variables:
+   - `PORT` = `3001`
+   - `NODE_ENV` = `production`
+6. Click "Create Web Service"
+7. Copy your Render URL (e.g., `https://insyd-backend.onrender.com`)
 
-1. **Create Railway Account**
-   - Go to [railway.app](https://railway.app)
-   - Sign up with GitHub
+### Update Backend CORS
 
-2. **Create New Project**
-   - Click "New Project"
-   - Select "Deploy from GitHub repo"
-   - Choose your repository
+After deploying backend, update `server/index.js` CORS settings:
 
-3. **Configure Project**
-   - Root Directory: Leave empty (or set to `/server` if needed)
-   - Start Command: `node server/index.js`
-   - Build Command: Not needed for Node.js
+```javascript
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "https://your-frontend-domain.vercel.app"  // Add your Vercel URL
+  ]
+}));
+```
 
-4. **Set Environment Variables**
-   - PORT: 3001 (or leave default)
-   - Add any other required variables
+Or for production, allow all origins (less secure but simpler):
 
-5. **Deploy**
-   - Railway will automatically deploy
-   - Note the generated URL (e.g., `https://your-app.railway.app`)
+```javascript
+app.use(cors({
+  origin: "*"  // Allow all origins in production
+}));
+```
 
-## Backend Deployment (Render)
+## Step 2: Deploy Frontend (Vercel)
 
-1. **Create Render Account**
-   - Go to [render.com](https://render.com)
-   - Sign up with GitHub
+1. Go to [vercel.com](https://vercel.com) and sign in
+2. Click "Add New Project"
+3. Import your GitHub repository
+4. Configure project:
+   - **Framework Preset**: Next.js (auto-detected)
+   - **Root Directory**: `/` (root)
+   - **Build Command**: `npm run build` (default)
+   - **Output Directory**: `.next` (default)
+5. Add environment variable:
+   - **Key**: `NEXT_PUBLIC_API_URL`
+   - **Value**: Your backend URL (e.g., `https://your-backend.railway.app`)
+6. Click "Deploy"
+7. Wait for deployment to complete
+8. Your app will be live at `https://your-app.vercel.app`
 
-2. **Create New Web Service**
-   - Click "New +" → "Web Service"
-   - Connect your GitHub repository
+## Step 3: Update Backend CORS (Again)
 
-3. **Configure Service**
-   - Name: `insyd-backend`
-   - Environment: Node
-   - Build Command: `npm install`
-   - Start Command: `node server/index.js`
-   - Root Directory: Leave empty
+After frontend is deployed, update backend CORS to include your Vercel URL:
 
-4. **Set Environment Variables**
-   - PORT: 3001
+```javascript
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "https://your-frontend.vercel.app"  // Your actual Vercel URL
+  ]
+}));
+```
 
-5. **Deploy**
-   - Click "Create Web Service"
-   - Render will deploy automatically
+Redeploy backend after this change.
 
-## Update Frontend API URL
+## Environment Variables Summary
 
-After backend is deployed, update the frontend to use the production API:
+### Frontend (Vercel)
+- `NEXT_PUBLIC_API_URL` = Your backend URL (e.g., `https://your-backend.railway.app`)
 
-1. **Option 1: Update next.config.js**
-   ```javascript
-   async rewrites() {
-     return [
-       {
-         source: '/api/:path*',
-         destination: 'https://your-backend-url.com/api/:path*',
-       },
-     ];
-   }
-   ```
+### Backend (Railway/Render)
+- `PORT` = `3001` (or platform default)
+- `NODE_ENV` = `production`
 
-2. **Option 2: Use Environment Variables**
-   - In Vercel, go to Project Settings → Environment Variables
-   - Add `NEXT_PUBLIC_API_URL` with your backend URL
-   - Update API calls to use `process.env.NEXT_PUBLIC_API_URL`
+## Testing Deployment
 
-## Database Considerations
-
-- SQLite database file is stored locally in `server/inventory.db`
-- For production, consider migrating to PostgreSQL or MongoDB
-- Railway and Render both offer managed database services
-
-## Post-Deployment Checklist
-
-- [ ] Backend API is accessible
-- [ ] Frontend can connect to backend
-- [ ] CORS is properly configured
-- [ ] Database is initialized
-- [ ] Environment variables are set
-- [ ] SSL/HTTPS is enabled (automatic on Vercel/Railway/Render)
+1. Visit your Vercel frontend URL
+2. Try creating a SKU
+3. Check browser console for any CORS errors
+4. Verify data is being saved to backend database
 
 ## Troubleshooting
 
 ### CORS Errors
-- Ensure backend CORS is configured to allow your frontend domain
-- Check that API URLs are correct
+- Ensure backend CORS includes your frontend URL
+- Check that `NEXT_PUBLIC_API_URL` is set correctly in Vercel
+- Verify backend is accessible (try opening backend URL in browser)
+
+### API Not Found
+- Check `NEXT_PUBLIC_API_URL` environment variable in Vercel
+- Verify backend is running and accessible
+- Check backend logs for errors
 
 ### Database Issues
-- Ensure database file has write permissions
-- Consider using a managed database service for production
+- SQLite database is created automatically on first run
+- Ensure backend has write permissions
+- Database persists between deployments on Railway/Render
 
-### Build Errors
-- Check Node.js version compatibility
-- Ensure all dependencies are in package.json
-- Review build logs for specific errors
+### Build Failures
+- Check Node.js version (should be 18+)
+- Verify all dependencies are in `package.json`
+- Check build logs in Vercel dashboard
 
-## Alternative: Single Server Deployment
+## Quick Deploy Commands
 
-You can also deploy both frontend and backend together:
+### Local Testing
+```bash
+# Terminal 1 - Backend
+npm run server
 
-1. Build Next.js app: `npm run build`
-2. Serve static files with Express
-3. Deploy single Node.js app
+# Terminal 2 - Frontend
+npm run dev
+```
 
-This approach requires modifying the server to serve static files from `.next` directory.
+### Production Build Test
+```bash
+# Build frontend
+npm run build
+
+# Start production frontend
+npm start
+```
+
+## Database Backup
+
+To backup your database:
+1. Download `server/inventory.db` from your backend hosting
+2. Keep backups before major updates
+
+## Continuous Deployment
+
+Both Vercel and Railway/Render support automatic deployments:
+- Push to `main` branch = automatic deployment
+- Pull requests = preview deployments (Vercel)
+
+## Support
+
+If you encounter issues:
+1. Check deployment logs in Vercel/Railway dashboards
+2. Verify environment variables are set correctly
+3. Test backend API directly (e.g., `https://your-backend.railway.app/api/health`)
+4. Check browser console for frontend errors
 

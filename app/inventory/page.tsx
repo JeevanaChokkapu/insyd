@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { showToast } from '../components/Toast';
+import { API_BASE_URL } from '../config';
 import '../globals.css';
-const API_BASE_URL = "https://insyd-backend-oydv.onrender.com";
 
 interface SKU {
   id: string;
@@ -25,6 +26,11 @@ export default function InventoryPage() {
   const [skus, setSkus] = useState<SKU[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; id: string | null; skuName: string }>({
+    show: false,
+    id: null,
+    skuName: '',
+  });
 
   useEffect(() => {
     fetchSKUs();
@@ -32,35 +38,44 @@ export default function InventoryPage() {
 
   const fetchSKUs = async () => {
     try {
-      const response = await fetch('${API_BASE_URL}/api/skus');
+      const response = await fetch(`${API_BASE_URL}/api/skus`);
       const data = await response.json();
       setSkus(data);
     } catch (error) {
       console.error('Error fetching SKUs:', error);
+      showToast('Error loading inventory', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this SKU?')) {
-      return;
-    }
+  const handleDeleteClick = (id: string, skuName: string) => {
+    setDeleteConfirm({ show: true, id, skuName });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfirm.id) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/skus/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/skus/${deleteConfirm.id}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
+        showToast('SKU deleted successfully', 'success');
         fetchSKUs();
+        setDeleteConfirm({ show: false, id: null, skuName: '' });
       } else {
-        alert('Error deleting SKU');
+        showToast('Error deleting SKU', 'error');
       }
     } catch (error) {
       console.error('Error deleting SKU:', error);
-      alert('Error deleting SKU');
+      showToast('Error deleting SKU', 'error');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteConfirm({ show: false, id: null, skuName: '' });
   };
 
   const filteredSKUs = skus.filter(
@@ -153,7 +168,7 @@ export default function InventoryPage() {
                           </Link>
                           <button
                             className="btn btn-danger btn-small"
-                            onClick={() => handleDelete(sku.id)}
+                            onClick={() => handleDeleteClick(sku.id, sku.name)}
                           >
                             Delete
                           </button>
@@ -164,6 +179,37 @@ export default function InventoryPage() {
                 })}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {deleteConfirm.show && (
+          <div className="modal" onClick={handleDeleteCancel}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+              <div className="modal-header">
+                <h2>Confirm Delete</h2>
+                <button className="close-btn" onClick={handleDeleteCancel}>×</button>
+              </div>
+              <div style={{ padding: '20px 0' }}>
+                <p style={{ fontSize: '16px', color: '#333', marginBottom: '10px' }}>
+                  Are you sure you want to delete this SKU?
+                </p>
+                <p style={{ fontSize: '14px', color: '#666', fontWeight: '600' }}>
+                  {deleteConfirm.skuName}
+                </p>
+                <p style={{ fontSize: '13px', color: '#dc3545', marginTop: '15px' }}>
+                  ⚠️ This action cannot be undone.
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'flex-end' }}>
+                <button className="btn btn-secondary" onClick={handleDeleteCancel}>
+                  Cancel
+                </button>
+                <button className="btn btn-danger" onClick={handleDeleteConfirm}>
+                  Delete SKU
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

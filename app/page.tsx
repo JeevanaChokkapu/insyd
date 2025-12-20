@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { API_BASE_URL } from './config';
 import './globals.css';
-const API_BASE_URL = "https://insyd-backend-oydv.onrender.com";
 
 
 interface DashboardStats {
@@ -43,9 +43,9 @@ export default function Home() {
   const fetchDashboardData = async () => {
     try {
       const [statsRes, lowStockRes, deadRes] = await Promise.all([
-        fetch('${API_BASE_URL}/api/dashboard/stats'),
-        fetch('${API_BASE_URL}/api/alerts/low-stock'),
-        fetch('${API_BASE_URL}/api/alerts/dead-inventory')
+        fetch(`${API_BASE_URL}/api/dashboard/stats`),
+        fetch(`${API_BASE_URL}/api/alerts/low-stock`),
+        fetch(`${API_BASE_URL}/api/alerts/dead-inventory`)
       ]);
 
       const statsData = await statsRes.json();

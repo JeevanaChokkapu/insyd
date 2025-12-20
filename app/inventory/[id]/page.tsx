@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-const API_BASE_URL = "https://insyd-backend-oydv.onrender.com";
+import { showToast } from '../../components/Toast';
+import { API_BASE_URL } from '../../config';
 
 interface SKU {
   id: string;
@@ -51,12 +52,12 @@ export default function SKUDetailPage() {
         const data = await response.json();
         setSku(data);
       } else {
-        alert('SKU not found');
+        showToast('SKU not found', 'error');
         router.push('/inventory');
       }
     } catch (error) {
       console.error('Error fetching SKU:', error);
-      alert('Error loading SKU');
+      showToast('Error loading SKU', 'error');
     } finally {
       setLoading(false);
     }
@@ -65,7 +66,7 @@ export default function SKUDetailPage() {
   const handleStockAdjust = async () => {
     const qty = parseInt(adjustQuantity);
     if (!qty || qty <= 0) {
-      alert('Please enter a valid quantity');
+      showToast('Please enter a valid quantity', 'warning');
       return;
     }
 
@@ -81,28 +82,29 @@ export default function SKUDetailPage() {
       });
 
       if (response.ok) {
+        showToast(`Stock ${adjustType === 'add' ? 'added' : 'removed'} successfully`, 'success');
         fetchSKU(params.id as string);
         setShowAdjustModal(false);
         setAdjustQuantity('');
         setAdjustNotes('');
       } else {
-        alert('Error adjusting stock');
+        showToast('Error adjusting stock', 'error');
       }
     } catch (error) {
       console.error('Error adjusting stock:', error);
-      alert('Error adjusting stock');
+      showToast('Error adjusting stock', 'error');
     }
   };
 
   const handleSell = async () => {
     const qty = parseInt(sellQuantity);
     if (!qty || qty <= 0) {
-      alert('Please enter a valid quantity');
+      showToast('Please enter a valid quantity', 'warning');
       return;
     }
 
     if (sku && qty > sku.current_stock) {
-      alert('Insufficient stock');
+      showToast('Insufficient stock', 'error');
       return;
     }
 
@@ -117,34 +119,35 @@ export default function SKUDetailPage() {
       });
 
       if (response.ok) {
+        showToast('Sale recorded successfully', 'success');
         fetchSKU(params.id as string);
         setShowSellModal(false);
         setSellQuantity('');
         setSellNotes('');
       } else {
         const error = await response.json();
-        alert(error.error || 'Error recording sale');
+        showToast(error.error || 'Error recording sale', 'error');
       }
     } catch (error) {
       console.error('Error recording sale:', error);
-      alert('Error recording sale');
+      showToast('Error recording sale', 'error');
     }
   };
 
   const handleDamage = async () => {
     const qty = parseInt(damageQuantity);
     if (!qty || qty <= 0) {
-      alert('Please enter a valid quantity');
+      showToast('Please enter a valid quantity', 'warning');
       return;
     }
 
     if (!damageReason.trim()) {
-      alert('Please enter a reason');
+      showToast('Please enter a reason', 'warning');
       return;
     }
 
     if (sku && qty > sku.current_stock) {
-      alert('Insufficient stock');
+      showToast('Insufficient stock', 'error');
       return;
     }
 
@@ -160,6 +163,7 @@ export default function SKUDetailPage() {
       });
 
       if (response.ok) {
+        showToast('Damage/loss recorded successfully', 'success');
         fetchSKU(params.id as string);
         setShowDamageModal(false);
         setDamageQuantity('');
@@ -167,11 +171,11 @@ export default function SKUDetailPage() {
         setDamageNotes('');
       } else {
         const error = await response.json();
-        alert(error.error || 'Error recording damage');
+        showToast(error.error || 'Error recording damage', 'error');
       }
     } catch (error) {
       console.error('Error recording damage:', error);
-      alert('Error recording damage');
+      showToast('Error recording damage', 'error');
     }
   };
 

@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { showToast } from '../../components/Toast';
+import { API_BASE_URL } from '../../config';
 import '../../globals.css';
-const API_BASE_URL = "https://insyd-backend-oydv.onrender.com";
 
 export default function NewSKUPage() {
   const router = useRouter();
@@ -39,7 +40,7 @@ export default function NewSKUPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('${API_BASE_URL}/api/skus', {
+      const response = await fetch(`${API_BASE_URL}/api/skus`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -48,14 +49,17 @@ export default function NewSKUPage() {
       });
 
       if (response.ok) {
-        router.push('/inventory');
+        showToast('SKU created successfully!', 'success');
+        setTimeout(() => {
+          router.push('/inventory');
+        }, 1000);
       } else {
         const error = await response.json();
-        alert(error.error || 'Error creating SKU');
+        showToast(error.error || 'Error creating SKU', 'error');
       }
     } catch (error) {
       console.error('Error creating SKU:', error);
-      alert('Error creating SKU');
+      showToast('Error creating SKU. Please try again.', 'error');
     } finally {
       setLoading(false);
     }

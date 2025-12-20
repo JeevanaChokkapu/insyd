@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { showToast } from '../../../components/Toast';
+import { API_BASE_URL } from '../../../config';
 
 
 interface SKU {
@@ -36,17 +38,17 @@ export default function EditSKUPage() {
 
   const fetchSKU = async (id: string) => {
     try {
-      const response = await fetch(`/api/skus/${id}`);
+      const response = await fetch(`${API_BASE_URL}/api/skus/${id}`);
       if (response.ok) {
         const data = await response.json();
         setFormData(data);
       } else {
-        alert('SKU not found');
+        showToast('SKU not found', 'error');
         router.push('/inventory');
       }
     } catch (error) {
       console.error('Error fetching SKU:', error);
-      alert('Error loading SKU');
+      showToast('Error loading SKU', 'error');
     } finally {
       setLoading(false);
     }
@@ -69,7 +71,7 @@ export default function EditSKUPage() {
 
     setSaving(true);
     try {
-      const response = await fetch(`/api/skus/${formData.id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/skus/${formData.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -78,14 +80,17 @@ export default function EditSKUPage() {
       });
 
       if (response.ok) {
-        router.push(`/inventory/${formData.id}`);
+        showToast('SKU updated successfully', 'success');
+        setTimeout(() => {
+          router.push(`/inventory/${formData.id}`);
+        }, 1000);
       } else {
         const error = await response.json();
-        alert(error.error || 'Error updating SKU');
+        showToast(error.error || 'Error updating SKU', 'error');
       }
     } catch (error) {
       console.error('Error updating SKU:', error);
-      alert('Error updating SKU');
+      showToast('Error updating SKU', 'error');
     } finally {
       setSaving(false);
     }

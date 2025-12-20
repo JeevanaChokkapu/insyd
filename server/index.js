@@ -13,11 +13,18 @@ const PORT = process.env.PORT || 3001;
 
 
 // Middleware
+// CORS configuration - update with your frontend URL after deployment
+const allowedOrigins = [
+  "http://localhost:3000",
+  process.env.FRONTEND_URL || "https://insyd1.vercel.app"
+];
+
+// Allow all origins in development, specific origins in production
 app.use(cors({
-  origin: [
-    "http://localhost:3000",
-    "https://insyd1.vercel.app"
-  ]
+  origin: process.env.NODE_ENV === 'production' 
+    ? allowedOrigins 
+    : "*",
+  credentials: true
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

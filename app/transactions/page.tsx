@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { API_BASE_URL } from '../config';
 import '../globals.css';
-const API_BASE_URL = "https://insyd-backend-oydv.onrender.com";
 
 
 interface Transaction {
@@ -27,7 +27,7 @@ export default function TransactionsPage() {
 
   const fetchTransactions = async () => {
     try {
-      const response = await fetch('${API_BASE_URL}/api/transactions?limit=100');
+      const response = await fetch(`${API_BASE_URL}/api/transactions?limit=100`);
       const data = await response.json();
       setTransactions(data);
     } catch (error) {
