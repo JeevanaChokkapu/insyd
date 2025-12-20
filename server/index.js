@@ -13,18 +13,20 @@ const PORT = process.env.PORT || 3001;
 
 
 // Middleware
-// CORS configuration - update with your frontend URL after deployment
+// CORS configuration - allow all origins for Render deployment
+// In production, you can restrict to specific domains if needed
 const allowedOrigins = [
   "http://localhost:3000",
   process.env.FRONTEND_URL || "https://insyd1.vercel.app"
 ];
 
-// Allow all origins in development, specific origins in production
+// For Render, allow all origins to avoid CORS issues
+// You can restrict this later by adding specific frontend URLs
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? allowedOrigins 
-    : "*",
-  credentials: true
+  origin: "*", // Allow all origins - update this to specific URLs for security
+  credentials: false, // Set to true if you need credentials
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -94,6 +96,31 @@ function updateSkuTimestamp(skuId) {
 }
 
 // Routes
+
+// Root route - API information
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'Insyd Inventory Management API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      skus: '/api/skus',
+      dashboard: '/api/dashboard/stats',
+      analytics: '/api/analytics/top-sellers',
+      transactions: '/api/transactions',
+      alerts: {
+        lowStock: '/api/alerts/low-stock',
+        deadInventory: '/api/alerts/dead-inventory'
+      }
+    }
+  });
+});
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Server is running' });
+});
 
 // Get all SKUs
 app.get('/api/skus', (req, res) => {
@@ -505,10 +532,6 @@ app.get('/api/transactions', (req, res) => {
 });
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Server is running' });
-});
-
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
